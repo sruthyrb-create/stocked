@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stocked</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#fafaf7;--card:#ffffff;--ink:#1e2421;--soft:#5d6862;--rule:#e1e5e0;--leaf:#2f7d4a;--leaf-wash:#e2f1e6;
+  --amber:#b8730f;--amber-wash:#fbefd9;--red:#b23a3a;--red-wash:#f8e1e1;--sky:#2b6cb0;--grey:#8a948e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141816;--card:#1c221f;--ink:#e8ede9;--soft:#a3ada7;--rule:#2d3531;
+  --leaf:#5fbf80;--leaf-wash:#1d3426;--amber:#e3a443;--amber-wash:#3a2e17;--red:#ef7b7b;--red-wash:#3c1d1d;--sky:#7fb0ea;--grey:#6f7a74}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{padding:26px 0 8px}
+header h1{font-size:34px;font-weight:800;letter-spacing:-.5px;margin:0}
+header p{margin:4px 0 0;color:var(--soft)}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin:20px 0 34px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:18px;display:grid;grid-template-columns:96px 1fr;gap:16px}
+.card h2{font-size:20px;margin:0}
+.addr{color:var(--soft);font-size:15px;margin-bottom:8px}
+.level{font-size:26px;font-weight:800;line-height:1.1}
+.level.empty{color:var(--red)}.level.low{color:var(--amber)}.level.half,.level.full{color:var(--leaf)}.level.unknown{color:var(--grey)}
+.meta{color:var(--soft);font-size:14px;margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--leaf-wash);color:var(--leaf);border-radius:999px;padding:2px 10px;font-size:14px;font-weight:600}
+.chip.issue{background:var(--red-wash);color:var(--red)}
+.chip.stale{background:var(--amber-wash);color:var(--amber)}
+/* the fridge glyph: four shelves filled to the estimated level */
+.fridge{width:96px;height:150px;border:4px solid var(--ink);border-radius:12px;padding:6px;display:grid;grid-template-rows:repeat(4,1fr);gap:6px;background:var(--bg)}
+.shelf{background:var(--rule);border-radius:4px;position:relative;overflow:hidden}
+.shelf i{position:absolute;inset:0 auto 0 0;background:var(--leaf);transition:width .8s ease}
+.fridge.low .shelf i{background:var(--amber)}.fridge.empty .shelf i{background:var(--red)}
+.thumb{grid-column:1/-1;display:flex;gap:10px;align-items:center;color:var(--soft);font-size:13px}
+.thumb img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--rule)}
+
+section.console{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:20px;margin-bottom:28px}
+.console h2{margin:0 0 4px;font-size:22px}
+.console .sub{color:var(--soft);margin:0 0 14px}
+.cols{display:grid;grid-template-columns:1.1fr 1fr;gap:24px}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+h3{font-size:17px;margin:14px 0 8px}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--rule)}
+.alert:last-child{border-bottom:0}
+.alert .dot{width:12px;height:12px;border-radius:50%;margin-top:7px;flex:none;background:var(--amber)}
+.alert.issue .dot,.alert.empty .dot{background:var(--red)}.alert.restocked .dot{background:var(--leaf)}
+.alert.resolved{opacity:.5}
+.alert div{flex:1}
+.who{font-size:13px;color:var(--soft)}
+.btn{border:0;border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;background:var(--ink);color:var(--bg)}
+.btn.quiet{background:transparent;color:var(--ink);border:2px solid var(--rule)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.frow{padding:10px 0;border-bottom:1px solid var(--rule)}
+.frow:last-child{border-bottom:0}
+.spark{display:flex;align-items:flex-end;gap:3px;height:36px;margin:6px 0;border-bottom:1px solid var(--rule)}
+.spark i{width:10px;border-radius:3px 3px 0 0;background:var(--leaf)}
+.spark i.low{background:var(--amber)}.spark i.empty{background:var(--red)}
+.simrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin:8px 0}
+.simrow .pending{grid-column:1/-1}
+.sim{background:var(--bg);border-radius:12px;padding:12px 14px;margin-top:14px}
+.sim select{background:var(--card);border:2px solid var(--rule);border-radius:8px;padding:5px 8px}
+.pending{color:var(--sky);font-size:14px}
+.empty-note{color:var(--soft)}
+footer{color:var(--soft);font-size:14px;padding:0 0 30px}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="network">Stocked</h1>
+    <p>Live status of free community fridges. Take what you need, leave what you can.</p>
+  </header>
+
+  <div class="board" id="board" aria-live="polite"></div>
+
+  <section class="console">
+    <h2>Volunteer console</h2>
+    <p class="sub">Alerts from the fridge cameras, and quick actions.</p>
+    <div class="cols">
+      <div>
+        <h3>Alerts</h3>
+        <div id="alerts"></div>
+      </div>
+      <div>
+        <h3>Fridges</h3>
+        <div id="frows"></div>
+        <div class="sim">
+          <b>Simulator</b>
+          <div class="who">No Ring camera needed: choose what a fridge's shelves look like, then send the signed Ring motion event a real camera would send.</div>
+          <div id="simrows"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn quiet" data-advance="30" type="button">Skip ahead 30 min</button>
+            <button class="btn quiet" id="reset" type="button">Reset demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Privacy: each camera snapshot is cropped to the fridge shelves before it is analyzed, so people are never analyzed or stored. Only the fill estimate and a small shelf thumbnail are kept.</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LEVEL_TEXT = {empty:'Empty', low:'Running low', half:'About half full', full:'Well stocked', unknown:'No reading yet'};
+let state = null; const pending = {};
+
+const post = (url, body) => fetch(url, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body || {})}).then(r => r.json());
+const ago = (m) => m == null ? 'never' : m < 1 ? 'just now' : m < 60 ? `${m} min ago` : `${Math.round(m/60)} h ago`;
+
+function glyph(f){
+  const pct = f.percent ?? 0, cls = f.stale ? 'unknown' : f.level;
+  // fill shelves bottom-up so a "low" fridge shows food on the lower shelves
+  const shelves = [3,2,1,0].map(i => Math.max(0, Math.min(100, (pct - i*25) * 4)));
+  return `<div class="fridge ${cls}" role="img" aria-label="${esc(LEVEL_TEXT[f.level])}">${shelves.reverse().map(w => `<div class="shelf"><i style="width:${f.stale ? 0 : w}%"></i></div>`).join('')}</div>`;
+}
+
+function card(f){
+  const level = f.stale && f.updated_at ? 'unknown' : f.level;
+  const chips = [];
+  if (f.stale && f.updated_at) chips.push(`<span class="chip stale">Last seen ${ago(f.updated_min_ago)}</span>`);
+  for (const t of f.food_types) chips.push(`<span class="chip">${esc(t)}</span>`);
+  for (const i of f.issues) chips.push(`<span class="chip issue">${esc(i.replace('_',' '))}</span>`);
+  return `<article class="card">${glyph(f)}<div>
+    <h2>${esc(f.name)}</h2><div class="addr">${esc(f.address)}</div>
+    <div class="level ${level}">${esc(LEVEL_TEXT[level])}</div>
+    <div class="meta">${f.percent && !f.stale ? `About ${f.percent}% full · ` : ''}updated ${ago(f.updated_min_ago)}${f.empty_for_min ? ` · empty for ${f.empty_for_min} min` : ''}</div>
+    <div class="chips">${chips.join('')}</div></div>
+    ${f.thumb ? `<div class="thumb"><img alt="Shelves at the last check" src="data:image/jpeg;base64,${f.thumb}"><span>${f.method === 'bedrock' ? 'Read by Amazon Bedrock' : 'Estimated without AI (fill level only)'}${f.note ? ': ' + esc(f.note) : ''}</span></div>` : ''}
+  </article>`;
+}
+
+function spark(h){
+  if (!h.length) return '<div class="who">No readings yet.</div>';
+  const bars = h.slice(-24).map(p => `<i class="${p.level}" style="height:${Math.max(4, p.percent)}%" title="${p.percent}% · ${esc(p.source)}"></i>`).join('');
+  return `<div class="spark" role="img" aria-label="Fill level at the last ${Math.min(h.length,24)} checks">${bars}</div>`;
+}
+
+function render(){
+  const s = state;
+  $('network').textContent = s.network;
+  $('board').innerHTML = s.fridges.map(card).join('');
+  const fname = (id) => (s.fridges.find(f => f.id === id) || {}).name || '';
+  $('alerts').innerHTML = s.alerts.length ? s.alerts.map(a => `<div class="alert ${a.kind} ${a.resolved ? 'resolved' : ''}"><span class="dot"></span>
+      <div>${esc(a.text)}<div class="who">To ${a.audience === 'public' ? 'neighbors who follow this fridge' : 'volunteers'} · ${new Date(a.t*1000).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}</div></div>
+      ${a.resolved || a.audience === 'public' ? '' : `<button class="btn quiet" data-resolve="${a.id}" type="button">Handled</button>`}</div>`).join('')
+    : '<p class="empty-note">No alerts. Volunteers hear from Stocked when a fridge sits empty or needs cleaning.</p>';
+  $('frows').innerHTML = s.fridges.map(f => `<div class="frow"><b>${esc(f.name)}</b>${spark(f.history)}
+      <div class="row"><button class="btn quiet" data-check="${f.id}" type="button">Check now</button>
+      <label class="btn quiet" for="file-${f.id}">Upload a photo</label><input type="file" accept="image/*" id="file-${f.id}" data-upload="${f.id}">
+      ${f.issues.length ? `<button class="btn" data-cleaned="${f.id}" type="button">Mark cleaned</button>` : ''}</div></div>`).join('');
+  $('simrows').innerHTML = s.fridges.map(f => `<div class="simrow"><span>${esc(f.name)}</span>
+      <select data-shelf="${f.id}" aria-label="Shelves at ${esc(f.name)}">${s.demo_images.map(n => `<option ${n === f.sim_image ? 'selected' : ''}>${n}</option>`).join('')}</select>
+      <button class="btn" data-visit="${f.id}" type="button">Someone used it</button>
+      ${pending[f.id] ? `<span class="pending">checking shelves in ${pending[f.id]} s…</span>` : ''}</div>`).join('');
+}
+
+async function refresh(){ state = await (await fetch('/api/state')).json(); render(); }
+
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.resolve) await post(`/api/alerts/${t.dataset.resolve}/resolve`);
+  else if (t.dataset.check) await post(`/api/fridges/${t.dataset.check}/check`);
+  else if (t.dataset.cleaned) await post(`/api/fridges/${t.dataset.cleaned}/cleaned`);
+  else if (t.dataset.advance) await post(`/api/sim/advance?minutes=${t.dataset.advance}`);
+  else if (t.id === 'reset') await post('/api/sim/reset');
+  else if (t.dataset.visit){
+    const id = t.dataset.visit, r = await post(`/api/sim/${id}/visit`);
+    let left = Math.round(r.check_in_s); pending[id] = left; render();
+    const timer = setInterval(() => { left -= 1; pending[id] = left > 0 ? left : 0; if (left <= 0){ clearInterval(timer); delete pending[id]; } render(); }, 1000);
+    return;
+  } else return;
+  refresh();
+});
+document.addEventListener('change', async (e) => {
+  const t = e.target;
+  if (t.dataset.shelf){ await post(`/api/sim/${t.dataset.shelf}/shelf`, {image: t.value}); refresh(); }
+  if (t.dataset.upload && t.files[0]){
+    const fd = new FormData(); fd.append('file', t.files[0]);
+    await fetch(`/api/fridges/${t.dataset.upload}/photo`, {method:'POST', body: fd}); refresh();
+  }
+});
+
+refresh();
+const es = new EventSource('/api/stream'); es.onmessage = () => refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
